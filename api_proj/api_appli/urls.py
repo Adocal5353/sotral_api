@@ -21,6 +21,9 @@ urlpatterns = [
 
     path('credit/', credit_account, name='credit_account'),
     path('debit/', debit_account, name='debit_account'),
+
+    path('tarifs/',views.TarifList.as_view()),
+    path('tarifs/<int:pk>/', views.TarifDetail.as_view()),
 ]
 
 #urlpatterns = format_suffix_patterns(urlpatterns)
