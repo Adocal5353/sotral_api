@@ -313,3 +313,57 @@ def debit_account(request):
 
             return Response({"message": "Débit réussi", "compte": utilisateur.compte})
         return Response(serializer.errors, status=400)
+
+
+
+class TarifList(APIView):
+    def get(self, request, format=None):  # Affiche livre
+        tarifs = Tarif.objects.all()
+        serializer = TarifSerializer(tarifs, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):  # Créer livre
+        serializer = TarifSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+#Tarif
+class TarifDetail(APIView):
+    def get_object(self, pk):
+        try:
+            return Tarif.objects.get(pk)
+        except Tarif.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        tarif = self.get_object(pk)
+        serializer = TarifSerializer(tarif)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):  # MAJ de livre
+        tarif = self.get_object(pk)
+        serializer = TarifSerializer(tarif, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):  # Supprime livre
+        tarif = self.get_object(pk)
+        tarif.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def patch(self, request, pk):
+        try:
+            instance = Tarif.objects.get(pk=pk)
+        except Tarif.DoesNotExist:
+            return Response({"error": "Ressource non trouvée"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = TarifSerializer(instance, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)   
